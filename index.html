@@ -1,0 +1,112 @@
+//RECOVER THE BST:
+
+import java.util.Scanner;
+
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    
+    TreeNode(int val) {
+        this.val = val;
+    }
+}
+
+public class Main {
+    TreeNode firstIncorrectNode = null;
+    TreeNode secondIncorrectNode = null;
+    TreeNode prevNode = null;
+    
+    public void recoverTree(TreeNode root) {
+        TreeNode current = root;
+        TreeNode temp;
+        
+        while (current != null) {
+            if (current.left == null) {
+                // Process current node
+                if (prevNode != null && prevNode.val >= current.val) {
+                    if (firstIncorrectNode == null) {
+                        firstIncorrectNode = prevNode;
+                    }
+                    secondIncorrectNode = current;
+                }
+                prevNode = current;
+                current = current.right;
+            } else {
+                // Find the inorder predecessor
+                temp = current.left;
+                while (temp.right != null && temp.right != current) {
+                    temp = temp.right;
+                }
+                if (temp.right == null) {
+                    // Set the right pointer to enable returning to the current node
+                    temp.right = current;
+                    current = current.left;
+                } else {
+                    // Restore the right pointer and process current node
+                    temp.right = null;
+                    if (prevNode != null && prevNode.val >= current.val) {
+                        if (firstIncorrectNode == null) {
+                            firstIncorrectNode = prevNode;
+                        }
+                        secondIncorrectNode = current;
+                    }
+                    prevNode = current;
+                    current = current.right;
+                }
+            }
+        }
+        
+        // Swap the values of the two incorrectly placed nodes
+        int tempVal = firstIncorrectNode.val;
+        firstIncorrectNode.val = secondIncorrectNode.val;
+        secondIncorrectNode.val = tempVal;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Prompt user to input values for the binary search tree
+        System.out.println("Enter the root value:");
+        int rootVal = scanner.nextInt();
+        TreeNode root = new TreeNode(rootVal);
+
+        System.out.println("Enter the left child value of root (enter -1 if there's none):");
+        int leftChildVal = scanner.nextInt();
+        if (leftChildVal != -1) {
+            root.left = new TreeNode(leftChildVal);
+        }
+
+        System.out.println("Enter the right child value of root (enter -1 if there's none):");
+        int rightChildVal = scanner.nextInt();
+        if (rightChildVal != -1) {
+            root.right = new TreeNode(rightChildVal);
+        }
+
+        System.out.println("Enter the left child value of right subtree (enter -1 if there's none):");
+        int rightLeftChildVal = scanner.nextInt();
+        if (rightLeftChildVal != -1) {
+            root.right.left = new TreeNode(rightLeftChildVal);
+        }
+
+        System.out.println("Enter the right child value of right subtree (enter -1 if there's none):");
+        int rightRightChildVal = scanner.nextInt();
+        if (rightRightChildVal != -1) {
+            root.right.right = new TreeNode(rightRightChildVal);
+        }
+
+        Main solution = new Main();
+        solution.recoverTree(root);
+        
+        System.out.println("Inorder Traversal of Recovered BST:");
+        printInorder(root);
+    }
+    
+    // Helper function to print the inorder traversal of a tree
+    private static void printInorder(TreeNode node) {
+        if (node == null) return;
+        printInorder(node.left);
+        System.out.print(node.val + " ");
+        printInorder(node.right);
+    }
+}
